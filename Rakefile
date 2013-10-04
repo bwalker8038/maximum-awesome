@@ -63,7 +63,7 @@ namespace :install do
     step 'the_silver_searcher'
     brew_install 'the_silver_searcher'
   end
-
+  
   desc 'Install iTerm'
   task :iterm do
     step 'iterm2'
@@ -94,7 +94,13 @@ namespace :install do
     step 'tmux'
     brew_install 'tmux'
   end
-
+  
+  desc 'Install zsh'
+  task :zsh do
+    step 'zsh'
+    brew_install 'zsh'
+  end
+  
   desc 'Install MacVim'
   task :macvim do
     step 'MacVim'
@@ -129,6 +135,7 @@ task :default do
   Rake::Task['install:ctags'].invoke
   Rake::Task['install:reattach_to_user_namespace'].invoke
   Rake::Task['install:tmux'].invoke
+  Rake::Task['install:zsh'].invoke
   Rake::Task['install:macvim'].invoke
 
   step 'git submodules'
@@ -138,14 +145,23 @@ task :default do
   Dir.chdir 'vim/bundle/command-t' do
     sh 'env PATH=/bin:/usr/bin rake make'
   end
-
+  
+  step 'tmuxified'
+  Dir.chdir '~/' do
+    sh 'git clone https://github.com/zaiste/tmuxified.git'
+    sh 'mv ~/tmuxified .tmuxified'
+  end
+  
+  step 'oh-my-zsh'
+  sh 'curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh'
+  
   # TODO install gem ctags?
   # TODO run gem ctags?
 
   step 'symlink'
-  link_file 'vim'       , '~/.vim'
-  link_file 'tmux.conf' , '~/.tmux.conf'
-  link_file 'vimrc'     , '~/.vimrc'
+  link_file 'vim'             , '~/.vim'
+  link_file '.tmux/tmux.conf' , '~/.tmux.conf'
+  link_file 'vimrc'           , '~/.vimrc'
   unless File.exist?(File.expand_path('~/.vimrc.local'))
     cp File.expand_path('vimrc.local'), File.expand_path('~/.vimrc.local'), :verbose => true
   end
